@@ -63,8 +63,7 @@ info "✓ Namespace erstellt"
 kubectl apply -f k8s/secret.yaml
 warn "⚠️  WICHTIG: Ändern Sie die Secrets in k8s/secret.yaml für Production!"
 
-kubectl apply -f k8s/configmap.yaml
-info "✓ ConfigMap erstellt"
+
 
 kubectl apply -f k8s/pvc.yaml
 info "✓ PersistentVolumeClaim erstellt"
