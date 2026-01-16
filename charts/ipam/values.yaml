@@ -1,0 +1,51 @@
+global:
+  namespace: ipam
+
+backend:
+  image:
+    repository: moresophy/ipam-backend
+    tag: latest
+    pullPolicy: Always
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 5000
+  secret:
+    secretKey: "change-this-to-a-random-secret-key-in-production"
+    jwtSecretKey: "change-this-to-a-random-jwt-secret-key-in-production"
+
+frontend:
+  image:
+    repository: moresophy/ipam-frontend
+    tag: latest
+    pullPolicy: Always
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 80
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: 15-alpine
+  auth:
+    username: ipam
+    password: ipam_password
+    database: ipam
+  persistence:
+    enabled: true
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+
+ingress:
+  enabled: true
+  className: nginx
+  host: ipam.example.com
+  annotations: {}
+  #  cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  tls: []
+  #  - secretName: ipam-tls
+  #    hosts:
+  #      - ipam.example.com

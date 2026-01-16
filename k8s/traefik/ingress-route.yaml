@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ipam-ingress-route
+  namespace: ipam
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    # Backend Route (API)
+    - match: Host(`ipam.example.com`) && PathPrefix(`/api`)
+      kind: Rule
+      services:
+        - name: ipam-backend
+          port: 5000
+
+    # Frontend Route (SPA)
+    - match: Host(`ipam.example.com`)
+      kind: Rule
+      services:
+        - name: ipam-frontend
+          port: 80

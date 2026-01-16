@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipam-frontend
+  namespace: ipam
+  labels:
+    app: ipam-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ipam-frontend
+  template:
+    metadata:
+      labels:
+        app: ipam-frontend
+    spec:
+      # imagePullSecrets:
+      # - name: regcred
+      containers:
+      - name: frontend
+        image: moresophy/ipam-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5

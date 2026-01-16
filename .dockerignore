@@ -1,0 +1,49 @@
+# Git
+.git/
+.gitignore
+.dockerignore
+
+# Documentation
+*.md
+LICENSE
+docs/
+
+# Kubernetes Manifests (not needed in app container)
+k8s/
+
+# IDE & System
+.idea/
+.vscode/
+.DS_Store
+
+# Local Dependencies & Builds (Docker installs fresh)
+**/node_modules/
+**/venv/
+**/__pycache__/
+**/*.pyc
+**/dist/
+**/build/
+
+# Local Configuration & Secrets
+**/.env
+**/.env.local
+**/instance/
+
+# Local Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# CI/CD
+.gitlab-ci.yml
+deploy.sh
+
+# Data Migration Scripts & Data
+# These are used for one-off migration and shouldn't bloat the app image
+analyze_excel.py
+analyze_ods.py
+convert_excel_to_csv.py
+convert_ods_to_csv.py
+*.xlsx
+*.ods
+*.csv

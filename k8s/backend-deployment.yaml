@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipam-backend
+  namespace: ipam
+  labels:
+    app: ipam-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipam-backend
+  template:
+    metadata:
+      labels:
+        app: ipam-backend
+    spec:
+      # imagePullSecrets:
+      # - name: regcred
+      containers:
+      - name: backend
+        image: moresophy/ipam-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+          name: http
+        env:
+        - name: DATABASE_URI
+          valueFrom:
+            secretKeyRef:
+              name: ipam-backend-secret
+              key: DATABASE_URI
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ipam-backend-secret
+              key: SECRET_KEY
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ipam-backend-secret
+              key: JWT_SECRET_KEY
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/auth/me
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/auth/me
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: ipam-data

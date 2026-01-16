@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: ipam-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./instance:/data
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=1
+      - DATABASE_URI=postgresql://ipam:ipam_password@postgres:5432/ipam
+      - JWT_SECRET_KEY=dev-secret
+      - SECRET_KEY=dev-secret
+    depends_on:
+      - postgres
+    networks:
+      - ipam-network
+
+  frontend:
+    build: ./frontend
+    container_name: ipam-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - ipam-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ipam-postgres
+    environment:
+      - POSTGRES_USER=ipam
+      - POSTGRES_PASSWORD=ipam_password
+      - POSTGRES_DB=ipam
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ipam-network
+
+networks:
+  ipam-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+

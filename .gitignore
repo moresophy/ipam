@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+venv/
+backend/venv/
+
+# Compiled & Build Artifacts
+__pycache__/
+*.pyc
+frontend/dist/
+frontend/build/
+*.egg-info/
+
+# Environment & Local Configuration
+.env
+.env.local
+backend/.env
+frontend/.env
+backend/instance/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE & Editor
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Data Migration & temporary files
+# Exclude the specific customer data files
+moresophy.xlsx
+moresophy_new.ods
+moresophy_import.csv
+moresophy_new_import.csv
+
+# Exclude generated CSVs generally, but you might want to force add specific examples if needed
+*.csv
+!ipam_import_data.csv

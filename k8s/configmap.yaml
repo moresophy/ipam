@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ipam-backend-config
+  namespace: ipam
+data:
+  DATABASE_URI: "sqlite:////data/ipam.db"
+  FLASK_ENV: "production"
