@@ -1,3 +1,6 @@
+> [!NOTE]
+> This project was created with **Vibe-Coding** and **Antigravity** by **Google**.
+
 # IPAM - IP Address Management System 1.2.0
 
 A modern, web-based IP Address Management System with hierarchical subnets, complete German localization, and Kubernetes deployment. Now with PostgreSQL support!
