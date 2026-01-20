@@ -14,7 +14,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret')
 
-CORS(app)
+# Allow all origins for now to prevent issues with local vs prod domains
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 db.init_app(app)
 jwt = JWTManager(app)
 
