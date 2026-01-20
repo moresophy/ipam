@@ -6,6 +6,10 @@ import ipaddress
 api_bp = Blueprint('api', __name__)
 
 # --- Auth ---
+@api_bp.route('/health', methods=['GET'])
+def health_check():
+    return jsonify(status="ok"), 200
+
 @api_bp.route('/auth/register', methods=['POST'])
 def register():
     data = request.get_json()
