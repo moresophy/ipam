@@ -15,6 +15,13 @@ spec:
       labels:
         app: postgres
     spec:
+      initContainers:
+      - name: init-postgres-storage
+        image: busybox
+        command: ['sh', '-c', 'chown -R 70:70 /var/lib/postgresql/data']
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
       containers:
       - name: postgres
         image: postgres:15-alpine
@@ -33,6 +40,8 @@ spec:
               key: POSTGRES_PASSWORD
         - name: POSTGRES_DB
           value: ipam
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
