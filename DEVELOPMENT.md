@@ -8,10 +8,21 @@
 ### Backend
 - **Framework**: Flask 3.1.0
 - **Language**: Python 3.9+
+- **Language**: Python 3.9+
 - **Database**: SQLite (Development), PostgreSQL (Production)
 - **ORM**: SQLAlchemy 2.0
 - **Auth**: JWT (Flask-JWT-Extended)
 - **Server**: Gunicorn
+
+### Localization (i18n)
+The frontend uses `i18next` for internationalization. Translation files are located in `frontend/src/locales/*.json`.
+supported languages: `en`, `de`, `es`, `fr`, `ja`, `pt`, `ru`, `zh`.
+
+**Adding a new key:**
+1. Add the key and translation to `frontend/src/locales/en.json` (Source of Truth).
+2. Add the translation to all other locale files.
+3. Use `t('key_name')` in React components.
+
 
 ### Frontend
 - **Framework**: React 19
