@@ -1,7 +1,7 @@
 > [!NOTE]
 > This project was created with **Vibe-Coding** and **Antigravity** by **Google**.
 
-# IPAM - IP Address Management System 1.2.2
+# IPAM - IP Address Management System 1.2.3
 
 A modern, web-based IP Address Management System with hierarchical subnets, multilingual support (EN, DE, ES, FR, JA, PT, RU, ZH), and Kubernetes deployment. Now with PostgreSQL support!
 
@@ -556,5 +556,5 @@ This project is licensed under the MIT License.
 ---
 
 **Status:** Production Ready ✅  
-**Version:** 1.2.2  
+**Version:** 1.2.3  
 **Last Update:** January 2026

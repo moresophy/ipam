@@ -127,3 +127,32 @@ See `k8s/README.md` for detailed steps.
 ### Security
 - **Auth**: JWT-based.
 - **Secrets**: Kubernetes secrets used for DB and JWT keys.
+
+## 🔧 Troubleshooting & Known Issues (Kubernetes)
+
+### 1. Postgres "Directory not empty" Error
+**Symptom**: Pod crashes with `initdb: error: directory "/var/lib/postgresql/data" exists but is not empty`.
+**Cause**: Kubernetes volume mounts often contain a `lost+found` directory, confusing Postgres.
+**Fix**: 
+- Set `PGDATA` to a subdirectory: `/var/lib/postgresql/data/pgdata`.
+- Use an `initContainer` to fix permissions (`chown -R 70:70 ...`).
+
+### 2. Login Fails with "Mixed Content" or CORS
+**Symptom**: Login button does nothing, Console shows `Blocked by CORS` or `Mixed Content` (HTTPS site requesting HTTP API).
+**Cause**: Frontend `api.js` had a hardcoded `http://127.0.0.1:5000` URL.
+**Fix**: 
+- Update `api.js` to use a relative path (`baseURL: '/api'`) or `VITE_API_URL`.
+- Ensure Ingress routes `/api` to the backend service.
+- Allow CORS in Backend (`CORS(app, resources={r"/api/*": {"origins": "*"}})`) as a safeguard.
+
+### 3. Liveness/Readiness Probes Failing
+**Symptom**: Backend pods restart loop or never become Ready.
+**Cause**: Probes targeted `/api/auth/me` which requires authentication (returns 401). K8s interprets 401 as failure.
+**Fix**: 
+- Added a public `/api/health` endpoint that returns `200 OK`.
+- Updated deployment manifests to probe `/api/health`.
+
+### 4. Browser Console Errors (WebSocket/Autofill)
+**Symptom**: Red errors in console about `background.js` or `wss://...`.
+**Cause**: These are usually from Browser Extensions (Password Managers, AdBlockers) or corporate security tools vs. the app itself.
+**Fix**: Verify in Incognito mode. If errors vanish, they are external to the app.
