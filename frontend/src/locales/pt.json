@@ -27,6 +27,12 @@
     "delete_ip_confirm": "Tem certeza que deseja excluir o IP \"{{name}}\"?",
     "delete_subnet_confirm": "Tem certeza que deseja excluir a sub-rede \"{{name}}\" e todos os IPs associados?",
     "login": "Entrar",
+    "arch_storage": "Armazenamento",
+    "table_ip": "Endereço IP",
+    "table_dns": "Nome DNS",
+    "table_arch": "Arquitetura",
+    "table_func": "Função",
+    "table_actions": "Ações",
     "username": "Nome de Usuário",
     "password": "Senha",
     "signed_in_as": "Conectado como {{name}}"

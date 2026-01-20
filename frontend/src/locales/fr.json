@@ -1,5 +1,11 @@
 {
     "app_title": "IPAM",
+    "arch_storage": "Stockage",
+    "table_ip": "Adresse IP",
+    "table_dns": "Nom DNS",
+    "table_arch": "Architecture",
+    "table_func": "Fonction",
+    "table_actions": "Actions",
     "logout": "Déconnexion",
     "subnets": "Sous-réseaux",
     "new_root_subnet": "Nouveau sous-réseau racine",

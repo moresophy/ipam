@@ -1,4 +1,10 @@
 {
+    "arch_storage": "存储",
+    "table_ip": "IP 地址",
+    "table_dns": "DNS 名称",
+    "table_arch": "架构",
+    "table_func": "功能",
+    "table_actions": "操作",
     "app_title": "IPAM",
     "logout": "登出",
     "subnets": "子网",

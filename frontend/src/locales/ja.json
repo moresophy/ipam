@@ -1,4 +1,10 @@
 {
+    "arch_storage": "ストレージ",
+    "table_ip": "IPアドレス",
+    "table_dns": "DNS名",
+    "table_arch": "アーキテクチャ",
+    "table_func": "機能",
+    "table_actions": "アクション",
     "app_title": "IPAM",
     "logout": "ログアウト",
     "subnets": "サブネット",
