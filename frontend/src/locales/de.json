@@ -52,5 +52,10 @@
     "arch_printer": "Drucker",
     "arch_iot": "IoT Gerät",
     "arch_server": "Server",
-    "arch_storage": "Speicher"
+    "arch_storage": "Storage",
+    "table_ip": "IP-Adresse",
+    "table_dns": "DNS-Name",
+    "table_arch": "Architektur",
+    "table_func": "Funktion",
+    "table_actions": "Aktionen"
 }

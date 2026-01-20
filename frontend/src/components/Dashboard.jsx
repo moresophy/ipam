@@ -439,12 +439,12 @@ const Dashboard = () => {
                             <table className="min-w-full leading-normal">
                                 <thead>
                                     <tr>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">IP-Adresse</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">{t('table_ip')}</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">{t('subnets')}</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">DNS-Name</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">Architektur</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">Funktion</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">Aktionen</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">{t('table_dns')}</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">{t('table_arch')}</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">{t('table_func')}</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left text-sm font-bold text-gray-600 dark:text-white uppercase tracking-wider">{t('table_actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
