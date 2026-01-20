@@ -66,7 +66,7 @@ const SettingsModal = ({ show, onClose }) => {
                     <div>
                         <h3 className="text-lg font-semibold mb-2 dark:text-gray-200">{t('language')}</h3>
                         <select
-                            value={i18n.language}
+                            value={i18n.resolvedLanguage || i18n.language}
                             onChange={handleLanguageChange}
                             className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         >
