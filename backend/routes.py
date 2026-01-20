@@ -78,6 +78,12 @@ def me():
 @jwt_required()
 def get_subnets():
     subnets = Subnet.query.all()
+    # Sort subnets by CIDR (network address)
+    try:
+        subnets.sort(key=lambda s: ipaddress.ip_network(s.cidr))
+    except ValueError:
+        pass # Handle potential invalid CIDRs gracefully, though they should be validated on creation
+        
     result = []
     for s in subnets:
         result.append({
