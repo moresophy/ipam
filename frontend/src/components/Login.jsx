@@ -24,7 +24,7 @@ const Login = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
             <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-96 transition-colors duration-200">
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">{t('login')}</h2>
+                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">{t('app_title')}</h2>
                 {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
