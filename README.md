@@ -111,6 +111,17 @@ npm run dev
 - GitLab CI/CD
 - Docker Hub Registry
 
+## 📸 Screenshots
+
+| Light Mode | Dark Mode |
+|:---:|:---:|
+| ![Dashboard Light](docs/screenshots/dashboard-light.png) | ![Dashboard Dark](docs/screenshots/dashboard-dark.png) |
+
+<div align="center">
+  <img src="docs/screenshots/settings.png" alt="Settings" width="500" />
+  <p><i>Flexible Settings & Configuration</i></p>
+</div>
+
 ## 💻 Installation
 
 ### Local Development
