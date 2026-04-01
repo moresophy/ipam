@@ -33,6 +33,14 @@ A modern, web-based IP Address Management system with hierarchical subnets, mult
 - **Docker & Kubernetes** — production-ready containerization
 - **GitLab CI/CD** — automated image builds pushed to Docker Hub (`moresophy`)
 
+## Screenshots
+
+| Light Mode | Dark Mode |
+|:---:|:---:|
+| ![Dashboard Light](images/dashboard-light.png) | ![Dashboard Dark](images/dashboard-dark.png) |
+
+![Login](images/login.png)
+
 ## Quick Start
 
 ### Prerequisites
