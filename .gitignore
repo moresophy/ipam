@@ -45,5 +45,3 @@ moresophy_new_import.csv
 *.csv
 !ipam_import_data.csv
 
-# CI/CD Documentation
-CICD.md

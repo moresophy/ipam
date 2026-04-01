@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
                 try {
                     const res = await api.get('/auth/me');
                     setUser(res.data.username);
-                } catch (err) {
+                } catch {
                     localStorage.removeItem('token');
                 }
             }
@@ -41,4 +41,5 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

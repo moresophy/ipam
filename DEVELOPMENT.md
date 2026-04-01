@@ -1,158 +1,126 @@
-# Development & Project Memory
+# Development & Project Notes
 
-## 📝 Project Overview
-**IPAM (IP Address Management System)** is a modern, web-based application for managing hierarchical subnets and IP addresses. It features automated IP assignment, search capabilities, CSV import/export, and is fully localized in German.
+## Project Overview
 
-## 🛠 Tech Stack
+**IPAM** is a web-based IP Address Management system with a Flask REST API backend and React SPA frontend. It supports hierarchical subnet management with intelligent IP auto-assignment, multilingual UI, and CSV import/export.
+
+## Tech Stack
 
 ### Backend
 - **Framework**: Flask 3.1.0
 - **Language**: Python 3.9+
-- **Language**: Python 3.9+
-- **Database**: SQLite (Development), PostgreSQL (Production)
+- **Database**: SQLite (dev), PostgreSQL 15 (production)
 - **ORM**: SQLAlchemy 2.0
-- **Auth**: JWT (Flask-JWT-Extended)
-- **Server**: Gunicorn
-
-### Localization (i18n)
-The frontend uses `i18next` for internationalization. Translation files are located in `frontend/src/locales/*.json`.
-supported languages: `en`, `de`, `es`, `fr`, `ja`, `pt`, `ru`, `zh`.
-
-**Adding a new key:**
-1. Add the key and translation to `frontend/src/locales/en.json` (Source of Truth).
-2. Add the translation to all other locale files.
-3. Use `t('key_name')` in React components.
-
+- **Auth**: Flask-JWT-Extended (JWT tokens stored in `localStorage`)
+- **Server**: Gunicorn (production), Flask dev server (local)
 
 ### Frontend
 - **Framework**: React 19
-- **Build Tool**: Vite 7.x
+- **Build**: Vite 7.x
 - **Styling**: Tailwind CSS v4
-- **HTTP Client**: Axios
+- **HTTP**: Axios — JWT attached via request interceptor in `api.js`
+- **i18n**: i18next with browser language detector (8 languages: EN, DE, ES, FR, JA, PT, RU, ZH)
 
 ### Infrastructure
 - **Containerization**: Docker
-- **Orchestration**: Kubernetes (K8s)
-- **CI/CD**: GitLab CI
-- **Registry**: Docker Hub (moresophy)
+- **Orchestration**: Kubernetes (namespace: `ipam`)
+- **CI/CD**: GitLab CI → Docker Hub (`moresophy`)
+- **Registry**: `moresophy/ipam-backend`, `moresophy/ipam-frontend`
 
-## 📂 Project Structure
+## Local Development
 
-```
-ip-network/
-├── backend/                # Flask Application
-│   ├── app.py              # Entry point
-│   ├── models.py           # DB Schema
-│   ├── routes.py           # API Endpoints
-│   ├── requirements.txt    # Python deps
-│   └── Dockerfile          # Backend container
-├── frontend/               # React Application
-│   ├── src/                # Source code
-│   ├── package.json        # Node deps
-│   └── Dockerfile          # Frontend container
-├── k8s/                    # Kubernetes Manifests
-│   ├── backend-*.yaml      # Backend resources
-│   ├── frontend-*.yaml     # Frontend resources
-│   ├── ingress.yaml        # Ingress routing
-│   └── secret.yaml         # Sensitive config
-├── instance/               # Instance-specific config (Flask)
-├── CICD.md                 # CI/CD Documentation
-├── README.md               # General Documentation
-└── deploy.sh               # Quick deploy script
-```
+### Backend
 
-## 🚀 Development Setup
-
-### Local Development
-
-#### Backend
-1. Navigate to `backend/`
-2. Create venv: `python -m venv venv`
-3. Activate: `source venv/bin/activate`
-4. Install: `pip install -r requirements.txt`
-5. Run: `python app.py` matches `http://127.0.0.1:5000`
-
-#### Frontend
-1. Navigate to `frontend/`
-2. Install: `npm install`
-3. Run: `npm run dev` matches `http://localhost:5173`
-
-### Docker Config
-
-To build manually:
 ```bash
-docker build -t ipam-backend:latest ./backend
-docker build -t ipam-frontend:latest ./frontend
+cd backend
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python app.py   # http://127.0.0.1:5000, SQLite
 ```
 
-### Docker Compose
-To start the entire environment locally:
+Environment variables (`.env`, not committed):
+- `DATABASE_URI` — PostgreSQL URI for production; defaults to SQLite
+- `JWT_SECRET_KEY` — required for JWT signing
+- `FLASK_DEBUG` — set to `true` to enable debug mode
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev     # http://localhost:5173
+npm run build   # production build → dist/
+npm run lint    # ESLint
+```
+
+### Docker Compose (full stack)
 
 ```bash
 docker compose up -d --build
+# Frontend: http://localhost:8080
+# Backend:  http://localhost:5000
+# PostgreSQL: port 5432 (user: ipam / ipam_password)
 ```
 
+## Key Business Logic
 
-- **Frontend**: http://localhost:8080
-- **Frontend**: http://localhost:8080
-- **Backend API**: http://localhost:5000
+### IP Auto-Assignment (`routes.py → add_ip`)
+When adding an IP address, the backend recursively searches the subnet hierarchy and assigns the IP to the **most specific (highest prefix length) subnet** that contains it — regardless of which subnet the user selected.
 
-## 🛠 Helper Scripts (Data Migration)
+### IP Reassignment on Subnet Creation (`routes.py → create_subnet`)
+When a new subnet is created, all existing subnets are checked with `ipaddress.subnet_of()`. Any IPs in a containing subnet that now fall within the new, more specific subnet are moved there automatically. This works for any depth, including root subnets.
 
-To assist with migrating legacy data, several helper scripts are available in the root directory:
+### Subnet Tree (unlimited depth)
+`Dashboard.jsx` builds the subnet tree with a recursive `buildTree(parentId)` function. There is no depth limit.
 
-- **`analyze_excel.py` / `analyze_ods.py`**: Inspects the structure of source spreadsheet files.
-- **`convert_excel_to_csv.py`**: Converts multi-table Excel files (like `moresophy.xlsx`) into importable CSVs. Logic includes subnet inference and architecture mapping.
-- **`convert_ods_to_csv.py`**: Converts ODS files (like `moresophy_new.ods`) to CSV, filtering for valid entries.
+## i18n
 
-*Note: These scripts require `pandas`, `openpyxl`, and `odfpy`. It is recommended to run them inside the backend container where these dependencies are installed.*
+Translation source of truth: `frontend/src/locales/en.json`.
 
+When adding a new UI string:
+1. Add to `en.json`
+2. Add to all 7 other locale files (`de`, `es`, `fr`, `ja`, `pt`, `ru`, `zh`)
+3. Use `const { t } = useTranslation()` → `t('key_name')` in components
 
-## ☸️ Kubernetes Deployment
+## Data Migration Scripts
 
-See `k8s/README.md` for detailed steps.
-- **Namespace**: `ipam`
-- **Ingress**: `ipam.example.com` (configurable)
-- **Secrets**: Managed via `k8s/secret.yaml`
+Legacy data can be migrated with the root-level helper scripts:
+- `analyze_excel.py` / `analyze_ods.py` — inspect source file structure
+- `convert_excel_to_csv.py` — convert multi-table Excel to importable CSV
+- `convert_ods_to_csv.py` — convert ODS to CSV
 
-## 🧠 Memory / Context (Maintenance Notes)
+These require `pandas`, `openpyxl`, and `odfpy`. Run inside the backend container where these are available.
 
-### Discrepancies & TODOs
-- **Database**: Default is SQLite. For production, `DATABASE_URI` is set to PostgreSQL in k8s config and docker-compose.
+## Architecture Badges
 
-### Infrastructure Details
-- **Registry**: Used for image registry (Docker Hub).
-- **GitLab CI**: Pushes images to Docker Hub on commit to `main`/`develop`.
+The IP table displays architecture type as a colored badge. The mapping is defined in `Dashboard.jsx → ARCH_BADGE`. Supported types: VM, Virtual, Bare Metal, Kubernetes, Docker, Container, LXC, Gateway, Router, Switch, Firewall, Load Balancer, Wifi, NFS, Storage, Printer, IoT Device, Server.
 
-### Security
-- **Auth**: JWT-based.
-- **Secrets**: Kubernetes secrets used for DB and JWT keys.
+## UI Skills
 
-## 🔧 Troubleshooting & Known Issues (Kubernetes)
+Three design skill files are installed at `.agents/skills/`:
+- `frontend-design/` — typography, color, motion, spatial composition guidelines
+- `ui-ux-pro-max/` — 99 UX rules across 10 priority categories (accessibility, forms, animation, etc.)
+- `web-design-guidelines/` — fetches Vercel's web interface guidelines for file audits
 
-### 1. Postgres "Directory not empty" Error
-**Symptom**: Pod crashes with `initdb: error: directory "/var/lib/postgresql/data" exists but is not empty`.
-**Cause**: Kubernetes volume mounts often contain a `lost+found` directory, confusing Postgres.
-**Fix**: 
-- Set `PGDATA` to a subdirectory: `/var/lib/postgresql/data/pgdata`.
-- Use an `initContainer` to fix permissions (`chown -R 70:70 ...`).
+Consult these when doing any frontend or design work.
 
-### 2. Login Fails with "Mixed Content" or CORS
-**Symptom**: Login button does nothing, Console shows `Blocked by CORS` or `Mixed Content` (HTTPS site requesting HTTP API).
-**Cause**: Frontend `api.js` had a hardcoded `http://127.0.0.1:5000` URL.
-**Fix**: 
-- Update `api.js` to use a relative path (`baseURL: '/api'`) or `VITE_API_URL`.
-- Ensure Ingress routes `/api` to the backend service.
-- Allow CORS in Backend (`CORS(app, resources={r"/api/*": {"origins": "*"}})`) as a safeguard.
+## Known Issues
 
-### 3. Liveness/Readiness Probes Failing
-**Symptom**: Backend pods restart loop or never become Ready.
-**Cause**: Probes targeted `/api/auth/me` which requires authentication (returns 401). K8s interprets 401 as failure.
-**Fix**: 
-- Added a public `/api/health` endpoint that returns `200 OK`.
-- Updated deployment manifests to probe `/api/health`.
+### PostgreSQL "Directory not empty"
+Set `PGDATA=/var/lib/postgresql/data/pgdata` (a subdirectory) to avoid collision with `lost+found` on Kubernetes volumes.
 
-### 4. Browser Console Errors (WebSocket/Autofill)
-**Symptom**: Red errors in console about `background.js` or `wss://...`.
-**Cause**: These are usually from Browser Extensions (Password Managers, AdBlockers) or corporate security tools vs. the app itself.
-**Fix**: Verify in Incognito mode. If errors vanish, they are external to the app.
+### Login fails in Kubernetes
+Frontend `api.js` must use a relative path (`baseURL: '/api'`), not a hardcoded backend URL. Ingress routes `/api` to the backend service.
+
+### Health checks
+Use `/api/health` for liveness/readiness probes — it returns 200 without authentication. `/api/auth/me` returns 401 and causes pod restart loops.
+
+### Browser console errors
+Errors from `background.js` or WebSocket connections are usually from browser extensions. Test in incognito before debugging.
+
+## Testing
+
+No automated tests currently exist. Manual testing via the Docker Compose stack. A future test suite should cover:
+- IP auto-assignment edge cases (overlapping CIDRs, root subnet creation)
+- CSV import validation
+- JWT token expiry handling

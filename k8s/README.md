@@ -1,69 +1,54 @@
 # IPAM Kubernetes Deployment
 
-Dieses Verzeichnis enthält alle Kubernetes-Manifeste für das IPAM-Deployment.
+This directory contains all Kubernetes manifests for the IPAM deployment.
 
-## Voraussetzungen
+## Prerequisites
 
-- Kubernetes Cluster (v1.20+)
-- kubectl konfiguriert
-- Ingress Controller (z.B. nginx-ingress)
-- Docker für Image-Builds
+- Kubernetes cluster (v1.20+)
+- `kubectl` configured
+- Ingress controller (e.g. nginx-ingress)
+- Docker for image builds
 
-## Deployment-Schritte
+## Deployment Steps
 
-### 1. Docker Images bauen
+### 1. Build and push Docker images
 
 ```bash
-# Backend Image
-cd backend
-docker build -t ipam-backend:latest .
-
-# Frontend Image
-cd ../frontend
-docker build -t ipam-frontend:latest .
+docker build -t moresophy/ipam-backend:latest ./backend
+docker build -t moresophy/ipam-frontend:latest ./frontend
+docker push moresophy/ipam-backend:latest
+docker push moresophy/ipam-frontend:latest
 ```
 
-### 2. Images in Registry pushen (optional)
+### 2. Configure secrets
 
-Wenn Sie eine Container Registry verwenden:
-
-```bash
-# Tag images
-docker tag ipam-backend:latest your-registry/ipam-backend:latest
-docker tag ipam-frontend:latest your-registry/ipam-frontend:latest
-
-# Push
-docker push your-registry/ipam-backend:latest
-docker push your-registry/ipam-frontend:latest
-```
-
-Dann in den Deployment-Dateien die `image:` Zeilen anpassen.
-
-### 3. Secrets anpassen
-
-**WICHTIG**: Ändern Sie die Secrets in `k8s/secret.yaml`:
+Edit `k8s/secret.yaml` with base64-encoded values:
 
 ```bash
-# Generiere sichere Secrets
+# Generate secure secrets
 python3 -c "import secrets; print(secrets.token_hex(32))"
+echo -n "your-value" | base64
 ```
 
-Tragen Sie die generierten Werte in `secret.yaml` ein.
+Key secrets to set:
+- `JWT_SECRET_KEY` — JWT signing key
+- `SECRET_KEY` — Flask session key
+- `DATABASE_URI` — PostgreSQL connection string
 
-### 4. Ingress-Konfiguration anpassen
+### 3. Configure Ingress
 
 In `k8s/ingress.yaml`:
-- Ändern Sie `ipam.example.com` zu Ihrer Domain
-- Passen Sie `ingressClassName` an Ihren Ingress Controller an
-- Optional: Aktivieren Sie TLS/HTTPS
+- Replace `ipam.example.com` with your domain
+- Adjust `ingressClassName` to match your ingress controller
+- Optionally enable TLS/HTTPS
 
-### 5. Deployment ausführen
+### 4. Deploy
 
 ```bash
-# Alle Ressourcen deployen
+# Deploy all resources at once
 kubectl apply -f k8s/
 
-# Oder einzeln in der richtigen Reihenfolge:
+# Or in order (first time)
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/secret.yaml
 kubectl apply -f k8s/configmap.yaml
@@ -75,108 +60,73 @@ kubectl apply -f k8s/frontend-service.yaml
 kubectl apply -f k8s/ingress.yaml
 ```
 
-### 6. Status überprüfen
+### 5. Verify
 
 ```bash
-# Pods anzeigen
 kubectl get pods -n ipam
-
-# Services anzeigen
 kubectl get svc -n ipam
-
-# Ingress anzeigen
 kubectl get ingress -n ipam
-
-# Logs anzeigen
 kubectl logs -n ipam -l app=ipam-backend
-kubectl logs -n ipam -l app=ipam-frontend
 ```
 
-## Zugriff auf die Anwendung
+**Default login:** `admin` / `password` — change immediately after first login.
 
-Nach erfolgreichem Deployment:
-
-- **URL**: http://ipam.example.com (oder Ihre konfigurierte Domain)
-- **Standard-Login**: admin / password (sollte nach erstem Login geändert werden!)
-
-## Skalierung
+## Scaling
 
 ```bash
-# Frontend skalieren
+# Scale frontend (stateless)
 kubectl scale deployment ipam-frontend -n ipam --replicas=3
 
-# Backend skalieren (Achtung: SQLite unterstützt nur 1 Replica!)
-# Für mehrere Backend-Replicas auf PostgreSQL umstellen
+# Backend: only scale with PostgreSQL — SQLite supports a single replica only
 ```
 
-## Backup der Datenbank
+## Database Backup & Restore
 
 ```bash
-# Pod-Name ermitteln
 BACKEND_POD=$(kubectl get pod -n ipam -l app=ipam-backend -o jsonpath='{.items[0].metadata.name}')
 
-# Datenbank kopieren
+# Backup
 kubectl cp ipam/$BACKEND_POD:/data/ipam.db ./ipam-backup-$(date +%Y%m%d).db
-```
 
-## Restore der Datenbank
-
-```bash
-# Datenbank wiederherstellen
+# Restore
 kubectl cp ./ipam-backup.db ipam/$BACKEND_POD:/data/ipam.db
-
-# Pod neu starten
 kubectl rollout restart deployment ipam-backend -n ipam
 ```
 
-## Migration zu PostgreSQL
+## Manifest Reference
 
-Für Production-Umgebungen wird PostgreSQL empfohlen:
+| File | Kind | Description |
+|------|------|-------------|
+| `namespace.yaml` | Namespace | `ipam` namespace |
+| `secret.yaml` | Secret | DB URI, JWT/Flask keys |
+| `configmap.yaml` | ConfigMap | Non-sensitive env vars |
+| `pvc.yaml` | PVC | Persistent storage for SQLite |
+| `backend-deployment.yaml` | Deployment | Flask API (1 replica) |
+| `backend-service.yaml` | Service | Backend ClusterIP |
+| `frontend-deployment.yaml` | Deployment | React SPA via nginx (2 replicas) |
+| `frontend-service.yaml` | Service | Frontend ClusterIP |
+| `ingress.yaml` | Ingress | HTTP(S) routing, `/api` → backend |
 
-1. PostgreSQL in Kubernetes deployen (oder externe Instanz verwenden)
-2. `configmap.yaml` anpassen:
-   ```yaml
-   DATABASE_URI: "postgresql://user:password@postgres-service:5432/ipam"
-   ```
-3. Backend neu deployen
+## Known Issues
 
-## Troubleshooting
+### PostgreSQL "Directory not empty"
+Set `PGDATA=/var/lib/postgresql/data/pgdata` (a subdirectory of the mount point) so PostgreSQL does not encounter the `lost+found` directory on first init.
 
-### Backend startet nicht
+### Health check endpoint
+Liveness/readiness probes must target `/api/health` (no auth required), **not** `/api/auth/me` (returns 401 → pod restart loop).
+
+### Troubleshooting
+
 ```bash
+# Backend logs
 kubectl logs -n ipam -l app=ipam-backend
+
+# Describe pod
 kubectl describe pod -n ipam -l app=ipam-backend
-```
 
-### Frontend zeigt Fehler
-```bash
-# Prüfen ob Backend erreichbar ist
-kubectl exec -n ipam -it deployment/ipam-frontend -- wget -O- http://ipam-backend:5000/api/auth/me
-```
-
-### Ingress funktioniert nicht
-```bash
+# Check ingress
 kubectl describe ingress -n ipam ipam-ingress
-# Prüfen Sie Ingress Controller Logs
-```
 
-## Deinstallation
-
-```bash
-# Alle Ressourcen löschen
+# Full teardown
 kubectl delete namespace ipam
 ```
-
-## Ressourcen-Übersicht
-
-| Ressource | Typ | Beschreibung |
-|-----------|-----|--------------|
-| namespace.yaml | Namespace | IPAM Namespace |
-| secret.yaml | Secret | Sensitive Konfiguration |
-| configmap.yaml | ConfigMap | Umgebungsvariablen |
-| pvc.yaml | PVC | Persistenter Speicher für DB |
-| backend-deployment.yaml | Deployment | Backend (1 Replica) |
-| backend-service.yaml | Service | Backend ClusterIP |
-| frontend-deployment.yaml | Deployment | Frontend (2 Replicas) |
-| frontend-service.yaml | Service | Frontend ClusterIP |
-| ingress.yaml | Ingress | HTTP(S) Routing |
